@@ -3,6 +3,8 @@ package cache
 import "github.com/mdryaan/resgate/internal/models"
 
 func (s *Store) InvalidateAll() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.items = make(map[string]*models.Reservation)
 }
 
