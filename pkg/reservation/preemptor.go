@@ -21,7 +21,7 @@ func (e *Engine) Preempt(preemptorName, targetName string) ([]*models.Reservatio
 		return nil, fmt.Errorf("tenant '%s' not found", targetName)
 	}
 
-	if preemptor.Priority < target.Priority {
+	if preemptor.Priority <= target.Priority {
 		return nil, fmt.Errorf("cannot preempt: '%s' (priority %d) must outrank '%s' (priority %d)",
 			preemptorName, preemptor.Priority, targetName, target.Priority)
 	}
