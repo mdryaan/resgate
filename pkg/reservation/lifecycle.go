@@ -23,10 +23,8 @@ func (e *Engine) Reserve(tenantName, poolName string, res models.Resources, ttl 
 
 	e.sweepExpiredLocked()
 
-	for _, r := range e.store.Reservations {
-		if r.TenantName == tenantName && r.PoolName == poolName && r.Status == models.StatusActive {
-			return nil, fmt.Errorf("tenant '%s' already has an active reservation in pool '%s'", tenantName, poolName)
-		}
+	if err := e.detectConflictLocked(tenantName, poolName); err != nil {
+		return nil, err
 	}
 
 	if !p.CanFit(res) {
