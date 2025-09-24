@@ -1,6 +1,8 @@
 package reservation
 
 import (
+	"sort"
+
 	"github.com/mdryaan/resgate/internal/models"
 	"github.com/mdryaan/resgate/internal/store"
 	"github.com/mdryaan/resgate/pkg/cache"
@@ -41,3 +43,25 @@ func (e *Engine) ListPools() []*models.Pool                    { return e.pools.
 func (e *Engine) AddTenant(t *models.Tenant) error              { return e.tenants.Add(t) }
 func (e *Engine) GetTenant(name string) (*models.Tenant, error) { return e.tenants.Get(name) }
 func (e *Engine) ListTenants() []*models.Tenant                 { return e.tenants.List() }
+
+func (e *Engine) ActiveReservations() []*models.Reservation {
+	e.SweepExpired()
+	e.store.RLock()
+	defer e.store.RUnlock()
+	result := make([]*models.Reservation, 0, len(e.store.Reservations))
+	for _, r := range e.store.Reservations {
+		result = append(result, r)
+	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].CreatedAt.Before(result[j].CreatedAt)
+	})
+	return result
+}
+
+func (e *Engine) History() []*models.Reservation {
+	e.store.RLock()
+	defer e.store.RUnlock()
+	out := make([]*models.Reservation, len(e.store.History))
+	copy(out, e.store.History)
+	return out
+}
