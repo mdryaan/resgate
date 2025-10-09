@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/mdryaan/resgate/internal/models"
@@ -78,12 +79,45 @@ var poolListCmd = &cobra.Command{
 	},
 }
 
+var poolShowCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show details of a specific pool",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if poolName == "" {
+			output.Fatal("--name is required")
+		}
+		p, err := engine.GetPool(poolName)
+		if err != nil {
+			output.Fatal(err.Error())
+		}
+		avail := p.Available()
+		output.Header(fmt.Sprintf("Pool: %s", p.Name))
+		fmt.Println(strings.Repeat("─", 50))
+		fmt.Printf("  %-22s %s\n", "Created:", utils.FormatTime(p.CreatedAt))
+		fmt.Println()
+		fmt.Printf("  %-22s %s\n", "CPU Total:", output.Info(fmt.Sprintf("%d cores", p.Total.CPU)))
+		fmt.Printf("  %-22s %s\n", "CPU Reserved:", output.Warn(fmt.Sprintf("%d cores (%.0f%%)", p.Reserved.CPU, p.CPUPercent())))
+		fmt.Printf("  %-22s %s\n", "CPU Available:", output.Success(fmt.Sprintf("%d cores", avail.CPU)))
+		fmt.Println()
+		fmt.Printf("  %-22s %s\n", "Memory Total:", output.Info(fmt.Sprintf("%d MB", p.Total.Memory)))
+		fmt.Printf("  %-22s %s\n", "Memory Reserved:", output.Warn(fmt.Sprintf("%d MB (%.0f%%)", p.Reserved.Memory, p.MemoryPercent())))
+		fmt.Printf("  %-22s %s\n", "Memory Available:", output.Success(fmt.Sprintf("%d MB", avail.Memory)))
+		fmt.Println()
+		fmt.Printf("  %-22s %s\n", "GPU Total:", output.Info(fmt.Sprintf("%d units", p.Total.GPU)))
+		fmt.Printf("  %-22s %s\n", "GPU Reserved:", output.Warn(fmt.Sprintf("%d units (%.0f%%)", p.Reserved.GPU, p.GPUPercent())))
+		fmt.Printf("  %-22s %s\n", "GPU Available:", output.Success(fmt.Sprintf("%d units", avail.GPU)))
+		return nil
+	},
+}
+
 func init() {
 	poolCreateCmd.Flags().StringVar(&poolName, "name", "", "pool name (required)")
 	poolCreateCmd.Flags().IntVar(&poolCPU, "cpu", 0, "total CPU cores")
 	poolCreateCmd.Flags().IntVar(&poolMemory, "memory", 0, "total memory in MB")
 	poolCreateCmd.Flags().IntVar(&poolGPU, "gpu", 0, "total GPU units")
 
-	poolCmd.AddCommand(poolCreateCmd, poolListCmd)
+	poolShowCmd.Flags().StringVar(&poolName, "name", "", "pool name (required)")
+
+	poolCmd.AddCommand(poolCreateCmd, poolListCmd, poolShowCmd)
 	rootCmd.AddCommand(poolCmd)
 }
