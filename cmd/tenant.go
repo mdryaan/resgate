@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/mdryaan/resgate/internal/models"
+	"github.com/mdryaan/resgate/internal/utils"
 	"github.com/mdryaan/resgate/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -38,10 +40,38 @@ var tenantAddCmd = &cobra.Command{
 	},
 }
 
+var tenantListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List all registered tenants",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		tenants := engine.ListTenants()
+		if len(tenants) == 0 {
+			output.Warnf("No tenants registered")
+			return nil
+		}
+		t := output.NewTable([]string{"Name", "Priority", "Registered"})
+		for _, tenant := range tenants {
+			pStr := fmt.Sprintf("%d", tenant.Priority)
+			var colored string
+			switch {
+			case tenant.Priority >= 8:
+				colored = output.Error(pStr)
+			case tenant.Priority >= 5:
+				colored = output.Warn(pStr)
+			default:
+				colored = output.Success(pStr)
+			}
+			t.Append([]string{output.Info(tenant.Name), colored, utils.FormatTime(tenant.CreatedAt)})
+		}
+		t.Render()
+		return nil
+	},
+}
+
 func init() {
 	tenantAddCmd.Flags().StringVar(&tenantName, "name", "", "tenant name (required)")
 	tenantAddCmd.Flags().IntVar(&tenantPriority, "priority", 5, "priority level 1-10 (higher = more priority)")
 
-	tenantCmd.AddCommand(tenantAddCmd)
+	tenantCmd.AddCommand(tenantAddCmd, tenantListCmd)
 	rootCmd.AddCommand(tenantCmd)
 }
