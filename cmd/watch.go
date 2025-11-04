@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var watchInterval int
+
 var watchCmd = &cobra.Command{
 	Use:   "watch",
 	Short: "Live watch of reservation state with periodic refresh",
@@ -23,7 +25,7 @@ var watchCmd = &cobra.Command{
 
 		printWatchView()
 
-		ticker := time.NewTicker(3 * time.Second)
+		ticker := time.NewTicker(time.Duration(watchInterval) * time.Second)
 		defer ticker.Stop()
 
 		for {
@@ -92,5 +94,6 @@ func printWatchView() {
 }
 
 func init() {
+	watchCmd.Flags().IntVar(&watchInterval, "interval", 3, "refresh interval in seconds")
 	rootCmd.AddCommand(watchCmd)
 }
