@@ -74,40 +74,7 @@
 
 ## Architecture
 
-```mermaid
-graph TD
-    A[cmd/ CLI Layer] --> B[pkg/reservation Engine]
-    B --> C[internal/store Store]
-    B --> D[pkg/pool Manager]
-    B --> E[pkg/tenant Registry]
-    B --> F[pkg/cache Store]
-    D --> C
-    E --> C
-    A --> H[pkg/output]
-    A --> I[pkg/exporter]
-    I --> J[internal/models]
-    C --> J
-
-    subgraph "Reservation Engine"
-        B
-        B1[lifecycle.go]
-        B2[preemptor.go]
-        B3[expiry.go]
-        B4[conflict.go]
-        B --> B1
-        B --> B2
-        B --> B3
-        B --> B4
-    end
-
-    subgraph "Cache Layer"
-        F
-        F1[invalidator.go]
-        F2[snapshot.go]
-        F --> F1
-        F --> F2
-    end
-```
+![Architecture diagram](./public/screenshots/arch5.png)
 
 ---
 
