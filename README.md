@@ -8,37 +8,18 @@
 
 ---
 
-<p align="center">
-  <img src="public/screenshots/home.png" alt="Resgate home screen" width="800"/>
-</p>
-
----
-
-<table>
-  <tr>
-    <td><img src="public/screenshots/reserve.png" alt="reserve command" width="380"/></td>
-    <td><img src="public/screenshots/status.png" alt="status command" width="380"/></td>
-  </tr>
-  <tr>
-    <td><img src="public/screenshots/watch.png" alt="watch command" width="380"/></td>
-    <td><img src="public/screenshots/home.png" alt="help screen" width="380"/></td>
-  </tr>
-</table>
-
----
-
 ## Features
 
-- 🏊 Shared resource pools with CPU, memory, and GPU tracking
-- 👥 Multi-tenant registration with priority levels (1–10)
-- ⚡ Priority-based preemption — high priority evicts low priority
-- ⏱️ TTL-based reservation expiry with automatic sweep
-- 🔒 Concurrent-safe access via `sync.RWMutex` throughout
-- 🚨 Conflict detection — duplicate reservations rejected
-- 📊 Live utilization bars in watch mode and status
-- 📤 Export history as JSON or CSV
-- 💾 Optional JSON file persistence across CLI invocations
-- 🎨 Colorized output — green healthy, yellow warning, red exhausted
+- Shared resource pools with CPU, memory, and GPU tracking
+- Multi-tenant registration with priority levels (1–10)
+- Priority-based preemption — high priority evicts low priority
+- TTL-based reservation expiry with automatic sweep
+- Concurrent-safe access via `sync.RWMutex` throughout
+- Conflict detection — duplicate reservations rejected
+- Live utilization bars in watch mode and status
+- Export history as JSON or CSV
+- Optional JSON file persistence across CLI invocations
+- Colorized output — green healthy, yellow warning, red exhausted
 
 ---
 
@@ -100,7 +81,6 @@ graph TD
     B --> D[pkg/pool Manager]
     B --> E[pkg/tenant Registry]
     B --> F[pkg/cache Store]
-    B --> G[pkg/priority Queue]
     D --> C
     E --> C
     A --> H[pkg/output]
